@@ -64,6 +64,23 @@ class Customer {
     return await Reservation.getReservationsForCustomer(this.id);
   }
 
+    /** search for customers. */
+    static async  search(query) {
+      const results = await db.query(
+        `SELECT id, 
+            first_name AS "firstName",  
+            last_name AS "lastName", 
+            phone, 
+            notes 
+            FROM customers
+            WHERE first_name ILIKE $1
+            OR last_name ILIKE $1
+            ORDER BY last_name, first_name`,
+        [`%${query}%`]
+      );
+      return results.rows.map(c => new Customer(c));
+    }
+
   /** save this customer. */
 
   async save() {
@@ -83,6 +100,29 @@ class Customer {
       );
     }
   }
+
+/** get top 10 customers with those that have made the most reservations. */
+
+  static async top10() {
+    const results = await db.query(
+      `SELECT c.id, 
+      c.first_name AS "firstName",  
+      c.last_name AS "lastName", 
+      c.phone,
+      c.notes,
+      COUNT(r.id) AS "totalReservations"
+FROM customers c
+LEFT JOIN reservations r ON c.id = r.customer_id
+GROUP BY c.id
+ORDER BY "totalReservations" DESC
+LIMIT 10;
+`
+    );
+    return results.rows.map(c => new Customer(c));
 }
+
+}
+
+
 
 module.exports = Customer;

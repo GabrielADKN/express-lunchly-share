@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block title %}Customers{% endblock %}
+{% block content %}
+
+<ul style="column-count: 4; text-align: center">
+  {% for customer in customers %}
+  <li><a href="/{{ customer.id }}/">{{ customer.fullName }}</a></li>
+  {% endfor %}
+</ul>
+{% endblock %}

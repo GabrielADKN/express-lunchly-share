@@ -46,6 +46,38 @@ router.post("/add/", async function(req, res, next) {
   }
 });
 
+/** Search functionality. */
+
+router.get("/search/", async function(req, res, next) {
+  try {
+    // Access the search query from req.query instead of req.params
+    const q = req.query.search; // Assuming 'search' is the name of your query parameter
+
+    const customers = await Customer.search(q);
+
+    if (customers.length === 0) {
+      return res.render("customer_search.html", {
+        results: [],
+        query: q
+      })
+    }
+    return res.render("customer_search.html", { customers });
+  } catch (err) {
+    return next(err);
+  }
+});
+
+/** top 10 customers with those that have made the most reservations. */
+
+router.get("/top/", async function(req, res, next) {
+  try {
+    const customers = await Customer.top10();
+    return res.render("customer_top.html", { customers });
+  } catch (err) {
+    return next(err);
+  }
+});
+
 /** Show a customer, given their ID. */
 
 router.get("/:id/", async function(req, res, next) {
